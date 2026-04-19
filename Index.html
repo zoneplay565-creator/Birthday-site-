@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Happy Birthday Uncle</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            overflow: hidden;
+        }
+
+        /* PARTICLE CANVAS */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* INTRO SCREEN */
+        #intro {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 2;
+            animation: fadeOut 2s ease forwards;
+            animation-delay: 3s;
+        }
+
+        #intro h1 {
+            font-size: 28px;
+            opacity: 0;
+            animation: fadeIn 2s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        /* MAIN PAGE */
+        #main {
+            display: none;
+            text-align: center;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            min-height: 100vh;
+            padding: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            max-width: 600px;
+            margin: auto;
+            animation: fadeCard 1.5s ease;
+        }
+
+        @keyframes fadeCard {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #ff4b5c;
+        }
+
+        /* PHOTO */
+        .photo-container img {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: 
+                0 0 25px rgba(255, 75, 92, 0.6),
+                0 0 60px rgba(255, 75, 92, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        p {
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- PARTICLES -->
+<canvas id="particles"></canvas>
+
+<!-- INTRO -->
+<div id="intro">
+    <h1>For a Man Who Built Success with Humility...</h1>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+    <div class="card">
+        <h1>🎉 Happy Birthday Uncle 🎉</h1>
+
+        <div class="photo-container">
+            <img src="uncle.jpg" alt="Uncle Photo">
+        </div>
+
+        <p>
+            Dear Uncle,<br><br>
+            You are one of the most kind-hearted and innocent people I know,
+            and at the same time, a truly successful businessman.
+        </p>
+
+        <p>
+            Your hard work, wisdom, and humble nature inspire me every day.
+            You prove that success and goodness can go together.
+        </p>
+
+        <h3 style="color:#ff4b5c;">
+            Wishing you happiness, health, and more success! 🎂
+        </h3>
+
+        <p>— With love</p>
+    </div>
+</div>
+
+<!-- SCRIPT -->
+<script>
+    // INTRO TRANSITION
+    setTimeout(() => {
+        document.getElementById("intro").style.display = "none";
+        document.getElementById("main").style.display = "block";
+        document.body.style.overflow = "auto";
+    }, 4000);
+
+    // PARTICLES
+    const canvas = document.getElementById("particles");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    resizeCanvas();
+
+    let particles = [];
+
+    for (let i = 0; i < 80; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: Math.random() * 2 + 1,
+            speed: Math.random() * 0.5 + 0.2
+        });
+    }
+
+    function drawParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let p of particles) {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255,255,255,0.6)";
+            ctx.fill();
+
+            p.y -= p.speed;
+
+            if (p.y < 0) {
+                p.y = canvas.height;
+                p.x = Math.random() * canvas.width;
+            }
+        }
+
+        requestAnimationFrame(drawParticles);
+    }
+
+    drawParticles();
+
+    window.addEventListener("resize", resizeCanvas);
+</script>
+
+</body>
+</html>
