@@ -7,13 +7,13 @@
         body {
             margin: 0;
             font-family: Arial;
-            background: radial-gradient(circle, #111, #000);
+            background: radial-gradient(circle, #0d0d0d, #000);
             color: white;
             text-align: center;
             overflow: hidden;
         }
 
-        /* INTRO */
+        /* INTRO SCREEN */
         #intro {
             position: fixed;
             width: 100%;
@@ -24,10 +24,11 @@
             align-items: center;
             z-index: 10;
             animation: fadeOut 2s ease forwards;
-            animation-delay: 3s;
+            animation-delay: 2.5s;
         }
 
         #intro h1 {
+            font-size: 26px;
             opacity: 0;
             animation: fadeIn 2s ease forwards;
         }
@@ -38,44 +39,43 @@
         /* MAIN */
         #main {
             display: none;
-            padding-top: 50px;
+            padding-top: 40px;
         }
 
-        /* CAKE (REALISTIC) */
+        /* CAKE */
         .cake {
             position: relative;
             margin-top: 100px;
         }
 
         .base {
-            width: 220px;
-            height: 100px;
-            background: linear-gradient(to bottom, #fff5e6, #f2d3b3);
+            width: 240px;
+            height: 110px;
+            background: linear-gradient(to bottom, #fff3e0, #e0a96d);
             border-radius: 20px;
             margin: auto;
             position: relative;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
         }
 
-        .base::before {
-            content: "";
+        .cream {
             position: absolute;
             top: -20px;
             width: 100%;
-            height: 30px;
-            background: #fff;
+            height: 40px;
+            background: white;
             border-radius: 50%;
         }
 
         .candle {
             width: 12px;
             height: 70px;
-            background: linear-gradient(to bottom, #ff4b5c, #b30021);
-            border-radius: 4px;
+            background: linear-gradient(to bottom, #ff4b5c, #8b0000);
             position: absolute;
             top: -80px;
             left: 50%;
             transform: translateX(-50%);
+            border-radius: 4px;
         }
 
         .flame {
@@ -89,16 +89,15 @@
             animation: flicker 0.15s infinite alternate;
         }
 
-        .flame::after {
-            content: "";
+        .glow {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             background: rgba(255,150,0,0.3);
             border-radius: 50%;
-            top: -5px;
-            left: -7px;
-            filter: blur(8px);
+            top: -38px;
+            left: -14px;
+            filter: blur(10px);
         }
 
         @keyframes flicker {
@@ -106,10 +105,9 @@
             to { transform: scale(1.2); }
         }
 
-        /* BUTTON */
         button {
             margin-top: 40px;
-            padding: 12px 25px;
+            padding: 12px 30px;
             border: none;
             border-radius: 25px;
             background: #ff4b5c;
@@ -118,14 +116,17 @@
             cursor: pointer;
         }
 
-        /* TEXT */
+        button:hover {
+            background: #ff2e44;
+        }
+
         #status {
-            margin-top: 20px;
-            opacity: 0.7;
+            margin-top: 15px;
+            opacity: 0.6;
         }
 
         #wish {
-            margin-top: 25px;
+            margin-top: 20px;
             font-size: 22px;
             opacity: 0;
             transition: opacity 1s ease;
@@ -147,71 +148,38 @@
     <div class="cake">
         <div class="candle">
             <div class="flame" id="flame"></div>
+            <div class="glow" id="glow"></div>
         </div>
-        <div class="base"></div>
+        <div class="base">
+            <div class="cream"></div>
+        </div>
     </div>
 
-    <button onclick="blowCandle()">Blow Manually 💨</button>
+    <button onclick="blowCandle()">Blow Candle 💨</button>
 
-    <div id="status">🎤 Tap anywhere to enable mic</div>
+    <div id="status">Tap button to blow</div>
     <div id="wish">✨ Your wish will come true ✨</div>
 </div>
 
 <script>
-    // INTRO TRANSITION
+    // Intro transition
     setTimeout(() => {
         document.getElementById("intro").style.display = "none";
         document.getElementById("main").style.display = "block";
         document.body.style.overflow = "auto";
-    }, 4000);
-
-    // MIC DETECTION (CLEAN VERSION)
-    let audioContext, analyser;
-
-    document.body.addEventListener("click", async () => {
-        if (!audioContext) {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const mic = audioContext.createMediaStreamSource(stream);
-
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-
-                mic.connect(analyser);
-
-                detectBlow();
-                document.getElementById("status").innerText = "🎤 Blow into mic...";
-            } catch {
-                document.getElementById("status").innerText = "Mic access denied ❌";
-            }
-        }
-    });
-
-    function detectBlow() {
-        const data = new Uint8Array(analyser.frequencyBinCount);
-
-        function check() {
-            analyser.getByteFrequencyData(data);
-
-            let volume = data.reduce((a, b) => a + b) / data.length;
-
-            if (volume > 60) {
-                blowCandle();
-                return;
-            }
-
-            requestAnimationFrame(check);
-        }
-
-        check();
-    }
+    }, 3000);
 
     function blowCandle() {
         document.getElementById("flame").style.display = "none";
+        document.getElementById("glow").style.display = "none";
+
         document.getElementById("wish").style.opacity = "1";
-        document.getElementById("status").innerText = "🎉 Wish granted!";
+        document.getElementById("status").innerText = "🎉 Redirecting...";
+
+        // Go to birthday page
+        setTimeout(() => {
+            window.location.href = "main.html";
+        }, 2000);
     }
 </script>
 
