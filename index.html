@@ -6,37 +6,99 @@
     <style>
         body {
             margin: 0;
-            background: radial-gradient(circle, #1a1a1a, #000);
-            color: white;
             font-family: Arial;
+            background: radial-gradient(circle, #111, #000);
+            color: white;
             text-align: center;
+            overflow: hidden;
         }
 
-        h1 {
-            margin-top: 50px;
+        /* INTRO */
+        #intro {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            animation: fadeOut 2s ease forwards;
+            animation-delay: 3s;
         }
 
+        #intro h1 {
+            opacity: 0;
+            animation: fadeIn 2s ease forwards;
+        }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+
+        /* MAIN */
+        #main {
+            display: none;
+            padding-top: 50px;
+        }
+
+        /* CAKE (REALISTIC) */
         .cake {
-            margin-top: 80px;
+            position: relative;
+            margin-top: 100px;
+        }
+
+        .base {
+            width: 220px;
+            height: 100px;
+            background: linear-gradient(to bottom, #fff5e6, #f2d3b3);
+            border-radius: 20px;
+            margin: auto;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .base::before {
+            content: "";
+            position: absolute;
+            top: -20px;
+            width: 100%;
+            height: 30px;
+            background: #fff;
+            border-radius: 50%;
         }
 
         .candle {
-            width: 20px;
-            height: 80px;
-            background: linear-gradient(to bottom, #fff, #ddd);
-            margin: auto;
-            border-radius: 5px;
-            position: relative;
+            width: 12px;
+            height: 70px;
+            background: linear-gradient(to bottom, #ff4b5c, #b30021);
+            border-radius: 4px;
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         .flame {
-            width: 20px;
-            height: 30px;
-            background: radial-gradient(circle, yellow, orange, red);
+            width: 16px;
+            height: 26px;
+            background: radial-gradient(circle, #fff176, #ff9800, #ff3d00);
             border-radius: 50%;
             position: absolute;
             top: -30px;
-            animation: flicker 0.2s infinite alternate;
+            left: -2px;
+            animation: flicker 0.15s infinite alternate;
+        }
+
+        .flame::after {
+            content: "";
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: rgba(255,150,0,0.3);
+            border-radius: 50%;
+            top: -5px;
+            left: -7px;
+            filter: blur(8px);
         }
 
         @keyframes flicker {
@@ -44,26 +106,26 @@
             to { transform: scale(1.2); }
         }
 
-        .base {
-            width: 200px;
-            height: 80px;
-            background: #ff4b5c;
-            border-radius: 20px;
-            margin: 10px auto;
-        }
-
+        /* BUTTON */
         button {
-            margin-top: 30px;
+            margin-top: 40px;
             padding: 12px 25px;
             border: none;
             border-radius: 25px;
             background: #ff4b5c;
             color: white;
+            font-size: 16px;
             cursor: pointer;
         }
 
-        #wish {
+        /* TEXT */
+        #status {
             margin-top: 20px;
+            opacity: 0.7;
+        }
+
+        #wish {
+            margin-top: 25px;
             font-size: 22px;
             opacity: 0;
             transition: opacity 1s ease;
@@ -73,29 +135,84 @@
 
 <body>
 
-<h1>🎂 Make a Wish & Blow the Candle 🎂</h1>
-
-<div class="cake">
-    <div class="candle">
-        <div class="flame" id="flame"></div>
-    </div>
-    <div class="base"></div>
+<!-- INTRO -->
+<div id="intro">
+    <h1>Make a Wish...</h1>
 </div>
 
-<button onclick="blowCandle()">Blow Candle 💨</button>
+<!-- MAIN -->
+<div id="main">
+    <h1>🎂 Blow the Candle 🎂</h1>
 
-<div id="wish">✨ Your wish will come true ✨</div>
+    <div class="cake">
+        <div class="candle">
+            <div class="flame" id="flame"></div>
+        </div>
+        <div class="base"></div>
+    </div>
+
+    <button onclick="blowCandle()">Blow Manually 💨</button>
+
+    <div id="status">🎤 Tap anywhere to enable mic</div>
+    <div id="wish">✨ Your wish will come true ✨</div>
+</div>
 
 <script>
-function blowCandle() {
-    document.getElementById("flame").style.display = "none";
-    document.getElementById("wish").style.opacity = "1";
-
-    // 👉 Redirect to birthday page after 2.5 sec
+    // INTRO TRANSITION
     setTimeout(() => {
-        window.location.href = "main.html";
-    }, 2500);
-}
+        document.getElementById("intro").style.display = "none";
+        document.getElementById("main").style.display = "block";
+        document.body.style.overflow = "auto";
+    }, 4000);
+
+    // MIC DETECTION (CLEAN VERSION)
+    let audioContext, analyser;
+
+    document.body.addEventListener("click", async () => {
+        if (!audioContext) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const mic = audioContext.createMediaStreamSource(stream);
+
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+
+                mic.connect(analyser);
+
+                detectBlow();
+                document.getElementById("status").innerText = "🎤 Blow into mic...";
+            } catch {
+                document.getElementById("status").innerText = "Mic access denied ❌";
+            }
+        }
+    });
+
+    function detectBlow() {
+        const data = new Uint8Array(analyser.frequencyBinCount);
+
+        function check() {
+            analyser.getByteFrequencyData(data);
+
+            let volume = data.reduce((a, b) => a + b) / data.length;
+
+            if (volume > 60) {
+                blowCandle();
+                return;
+            }
+
+            requestAnimationFrame(check);
+        }
+
+        check();
+    }
+
+    function blowCandle() {
+        document.getElementById("flame").style.display = "none";
+        document.getElementById("wish").style.opacity = "1";
+        document.getElementById("status").innerText = "🎉 Wish granted!";
+    }
 </script>
 
 </body>
